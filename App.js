@@ -1,116 +1,130 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+let timer = null;
+let ss = 0;
+let mm = 0;
+let hh = 0;
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [numero, setNumero] = useState(0);
+  const [botao, setBotao] = useState('VAI');
+  const [ultimo, setUltimo] = useState(null);
 
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const vai = () => {
+    if (timer !== null) {
+      //Aqui vai parar o timer
+      clearInterval(timer);
+      timer = null;
+      setBotao('VAI');
+    } else {
+      //Comecar a girar o timer...
+      timer = setInterval(() => {
+        ss++;
+
+        if (ss == 60) {
+          ss = 0;
+          mm++;
+        }
+
+        if (mm == 60) {
+          mm = 0;
+          hh++;
+        }
+
+        let format =
+          (hh < 10 ? '0' + hh : hh) +
+          ':' +
+          (mm < 10 ? '0' + mm : mm) +
+          ':' +
+          (ss < 10 ? '0' + ss : ss);
+
+        setNumero(format);
+      }, 1000);
+
+      setBotao('PARAR');
+    }
+  };
+
+  const limpar = () => {
+    if (timer !== null) {
+      //Parar o timer!
+      clearInterval(timer);
+      timer = null;
+    }
+
+    setUltimo(numero);
+
+    setNumero(0);
+    ss = 0;
+    mm = 0;
+    hh = 0;
+    setBotao('VAI');
+  };
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Image source={require('./src/crono.png')} />
+
+      <Text style={styles.timer}> {numero} </Text>
+
+      <View style={styles.btnArea}>
+        <TouchableOpacity style={styles.btn} onPress={vai}>
+          <Text style={styles.btnTexto}>{botao}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={limpar}>
+          <Text style={styles.btnTexto}>LIMPAR</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.areaUltima}>
+        <Text style={styles.textoCorrida}>
+          {ultimo ? 'Último tempo: ' + ultimo : ''}
+        </Text>
+      </View>
     </View>
   );
 };
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00aeef',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  timer: {
+    marginTop: -160,
+    fontSize: 45,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  btnArea: {
+    flexDirection: 'row',
+    marginTop: 130,
+    height: 40,
   },
-  highlight: {
-    fontWeight: '700',
+  btn: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    height: 40,
+    margin: 17,
+    borderRadius: 9,
+  },
+  btnTexto: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#00aeef',
+  },
+  areaUltima: {
+    marginTop: 40,
+  },
+  textoCorrida: {
+    fontSize: 23,
+    color: '#FFF',
+    fontStyle: 'italic',
   },
 });
 
